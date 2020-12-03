@@ -5,7 +5,7 @@ const { Client } = require('pg');
 const app = express();
 
 app.set('port', process.env.PORT || 5000);
-app.set('db', process.env.DATABASE_URL || 'postgres://gmmlykhtfjzplo:a0610968434ec4984369ad573a2e374cff4738be2285a87a4b3260aecdd56c9b@ec2-54-158-222-248.compute-1.amazonaws.com:5432/d8ejhm74jmjt8a')
+app.set('db', process.env.DATABASE_URL)
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
