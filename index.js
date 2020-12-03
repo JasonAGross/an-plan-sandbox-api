@@ -1,40 +1,33 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var pg = require('pg');
+const express = require('express');
+const bodyParser = require('body-parser');
+const { Client } = require('pg');
 
-var app = express();
+const app = express();
 
 app.set('port', process.env.PORT || 5000);
+app.set('db', process.env.DATABASE_URL || 'postgres://gmmlykhtfjzplo:a0610968434ec4984369ad573a2e374cff4738be2285a87a4b3260aecdd56c9b@ec2-54-158-222-248.compute-1.amazonaws.com:5432/d8ejhm74jmjt8a')
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
 
-const pool = new pg.Pool();
+const client = new Client({
+  connectionString: app.get('db'),
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 app.get('/products', (req, res) => {
-  res.send('hello, from express');
-  try {
-    pool.connect(process.env.DATABASE_URL, (err, client, done) => {
-      if (err) {
-        done();
-        console.log('something bad happened', err);
+  client.connect();
+
+  client.query(
+    'SELECT id, full_description__c, name, catalog_level__c, headline__c FROM salesforce.product2 WHERE catalog_level__c IS NOT NULL AND full_description__c IS NOT NULL AND headline__c IS NOT NULL LIMIT 25', (error, results) => {
+      if (error) {
+        return res.status(400).send(error);
       }
-      console.log('connection happened?');
-      client.query(
-        'SELECT id, full_description__c, name, catalog_level__c, headline__c FROM salesforce.product2 WHERE catalog_level__c IS NOT NULL AND full_description__c IS NOT NULL AND headline__c IS NOT NULL LIMIT 25', (error, results) => {
-          console.log('db result', results);
-          done();
-          if (error) {
-            console.log(error);
-            res.status(400).send(error);
-          }
-          res.status(200).json(results.rows);
-        }
-      )
-    })
-  } catch (error) {
-    console.log(error);
-  }
+      res.status(200).json(results.rows);
+    }
+  );
 });
 
 app.listen(app.get('port'), () => {
