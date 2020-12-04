@@ -21,7 +21,7 @@ app.get('/products', (req, res) => {
   client.connect();
 
   client.query(
-    'SELECT id, full_description__c, name, catalog_level__c, headline__c, Brand__c, Plateau_Price__c, Item_Type__c, Vendor_Account__c FROM salesforce.product2 WHERE catalog_level__c IS NOT NULL AND full_description__c IS NOT NULL AND headline__c IS NOT NULL LIMIT 25', (error, results) => {
+    'SELECT id, full_description__c, name, headline__c, brand__c, plateau_price__c, item_type__c, vendor_account__c FROM salesforce.product2 WHERE catalogs_included_in__c IS NOT NULL AND headline__c IS NOT NULL LIMIT 25', (error, results) => {
       if (error) {
         return res.status(400).send(error);
       }
